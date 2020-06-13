@@ -24,6 +24,7 @@ const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const minimist = __importStar(require("minimist"));
 const process = __importStar(require("process"));
+const child_process = __importStar(require("child_process"));
 const address = 'https://www.deviantart.com';
 const client_id = "12464";
 const client_secret = "22d53ed21c806257479ee557ab52e083";
@@ -340,6 +341,18 @@ function test_getUserProfile() {
     })();
 }
 //test_getUserProfile()
+function aria2_download() {
+    const ls = child_process.spawn('aria2c', ['-i', path.normalize(`${__dirname}/../aria2_input_file`)]);
+    ls.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+    ls.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+    ls.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+    });
+}
 //main
 function main() {
     let parseArgs = minimist.default(process.argv.slice(2));
@@ -368,7 +381,7 @@ That was used to read by aria2 for batch download.
         (async () => {
             accessToken = await getAccessToken();
             await getUserProfile().then((res) => {
-                console.log('user detected');
+                console.log('Author detected');
                 console.log(`${username} have ${res['stats']['user_deviations']} products.`);
             }).catch((rej) => {
                 client.close();
@@ -398,6 +411,7 @@ That was used to read by aria2 for batch download.
                     output.push(`${iterator['src']}\n  dir=${path.normalize(download_location + '/' + folder_name)}\n  out=${iterator['filename']}\n${iterator['img']}\n  dir=${path.normalize(download_location + '/' + folder_name)}`);
                 }
                 fs.writeFileSync(path.normalize(`${__dirname}/../aria2_input_file`), output.join('\n'), { encoding: "utf-8", flag: "w+" });
+                aria2_download();
             }
             catch (error) {
                 throw error;
@@ -420,6 +434,7 @@ That was used to read by aria2 for batch download.
                     output.push(`${iterator['src']}\n  dir=${path.normalize(download_location + '/' + folder_name)}\n  out=${iterator['filename']}\n${iterator['img']}\n  dir=${path.normalize(download_location + '/' + folder_name)}`);
                 }
                 fs.writeFileSync(path.normalize(`${__dirname}/../aria2_input_file`), output.join('\n'), { encoding: "utf-8", flag: "w+" });
+                aria2_download();
             }
             catch (error) {
                 throw error;
