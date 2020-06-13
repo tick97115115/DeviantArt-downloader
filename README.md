@@ -2,6 +2,7 @@
 
 ## Example
 node (program root path)/build/index.js --author Shuubaru -p C:/Users/APboi/Desktop -n tamaki
+
 aria2c -i (program root path)/aria2_input_file #this was unnecessary, because program will spown a sub process to start it.
 
 This program will make an "aria2_input_file" at program root directory.
