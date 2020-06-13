@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as minimist from "minimist";
 import * as process from "process";
+import * as child_process from "child_process";
 
 
 const address = 'https://www.deviantart.com'
@@ -340,6 +341,21 @@ function test_getUserProfile() {
 //test_getUserProfile()
 
 
+function aria2_download() {
+    const ls = child_process.spawn('aria2c', ['-i',path.normalize(`${__dirname}/../aria2_input_file`)]);
+    ls.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+      
+    ls.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+      
+    ls.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+    });
+}
+
 
 //main
 
@@ -370,7 +386,7 @@ That was used to read by aria2 for batch download.
         (async () => {
             accessToken = await getAccessToken()
             await getUserProfile().then((res: any) => {
-                console.log('user detected')
+                console.log('Author detected')
                 console.log(`${username} have ${res['stats']['user_deviations']} products.`)
             }).catch((rej) => {
                 client.close()
@@ -399,6 +415,7 @@ That was used to read by aria2 for batch download.
                     output.push(`${iterator['src']}\n  dir=${path.normalize(download_location+'/'+folder_name)}\n  out=${iterator['filename']}\n${iterator['img']}\n  dir=${path.normalize(download_location+'/'+folder_name)}`)
                 }
                 fs.writeFileSync(path.normalize(`${__dirname}/../aria2_input_file`), output.join('\n'), {encoding: "utf-8", flag: "w+"})
+                aria2_download()
             } catch (error) {
                 throw error
             } finally {
@@ -418,6 +435,7 @@ That was used to read by aria2 for batch download.
                     output.push(`${iterator['src']}\n  dir=${path.normalize(download_location+'/'+folder_name)}\n  out=${iterator['filename']}\n${iterator['img']}\n  dir=${path.normalize(download_location+'/'+folder_name)}`)
                 }
                 fs.writeFileSync(path.normalize(`${__dirname}/../aria2_input_file`), output.join('\n'), {encoding: "utf-8", flag: "w+"})
+                aria2_download()
             } catch (error) {
                 throw error
             } finally {
